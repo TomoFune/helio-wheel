@@ -4,7 +4,7 @@ Required Notice: Copyright (c) 2026 Fune (GitHub: TomoFune) (https://github.com/
 このアプリ「日輪 Helio Wheel」の独自のコード・画面・文章・デザインは、PolyForm Noncommercial License 1.0.0 の条件で公開しています。
 - 個人での利用、学習、研究、非営利の活動のための利用は、自由にできます。
 - 非営利の目的であれば、コピー・改変・再配布もできます。そのときは、このライセンス(またはそのURL)と、上の「Required Notice」の行を、一緒に渡してください。
-- 売る、広告などで収益を得る、会社の業務に使うなど、営利の目的で使うには、作者の許可が必要です。
+- 売る、広告などで収益を得る、会社の業務に使うなど、営利の目的で使うには、作者の許可が必要です(ただし、下の「追加の許可」にある、個人が自分の鑑定などで道具として使うことは、許可を求める必要はありません)。
 - 許可を求める連絡先: https://github.com/TomoFune/helio-wheel-test/issues (GitHub の Issues に書いてください)
 - 本アプリが利用している第三者のデータ・ソフトウェア・フォントは、この条件の対象ではなく、それぞれのライセンスに従います(THIRD_PARTY_LICENSES.md)。
 - 著者の文章(サビアンの解釈文など)は、このリポジトリに含まれていません。含まれていても、この条件の対象ではありません。
@@ -12,6 +12,19 @@ Required Notice: Copyright (c) 2026 Fune (GitHub: TomoFune) (https://github.com/
 [English summary -- the license text below is the binding one]
 The original code, screens, text and design of "Helio Wheel" are published under the PolyForm Noncommercial License 1.0.0. Personal use, study, research and other noncommercial use are free, and you may copy, modify and redistribute for noncommercial purposes if you keep the license (or its URL) and the Required Notice line above. Any commercial use needs the author's permission: https://github.com/TomoFune/helio-wheel-test/issues
 Third-party data, software and fonts are under their own licenses (see THIRD_PARTY_LICENSES.md). No texts by other authors are included in this repository.
+
+【追加の許可 / Additional permission】
+上の条件に加えて、作者は次のことを許可します(許可を求める必要はありません)。
+・個人が、自分の鑑定・相談・講座などで、この公開サイトのアプリを道具として使うこと(営利の場合を含む)。
+ただし、アプリのコード・データ・文章を、コピー・再配布・販売したり、有料の商品やサービスに組み込んだりすることは、作者の許可が必要です。会社などの組織が、業務でアプリを使うことも、作者の許可が必要です。
+
+In addition to the terms below, the author permits, without the need to ask:
+- Individuals using the hosted app as a tool in their own consultations, readings, or classes, including paid ones.
+Copying, redistributing, selling, or embedding the app's code, data or texts in a paid product or service still requires the author's permission, as does use by companies or other organizations in their business.
+
+【サビアンシンボルの文章について / The Sabian Symbols text】
+サビアンシンボルの文章は、Aurora Press の許可を得て表示するもので、この条件の対象ではありません。文章のコピー・再配布は、できません。
+The text of the Sabian Symbols is displayed with the permission of Aurora Press and is not covered by this license. It may not be copied or redistributed.
 
 ----------------------------------------------------------------------
 
