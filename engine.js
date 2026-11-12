@@ -24,7 +24,7 @@ const HelioEngine = (() => {
   // 取得していた -- ローカル開発サーバー(helio-appのプロジェクト直下を
   // ルートとして配信、ページ自体はweb/wheel.htmlに1段ネストされている)
   // ではこれでもたまたま正しく解決していたが、GitHub Pagesのプロジェクト
-  // ページ(https://tomofune.github.io/helio-wheel-test/、リポジトリ名の
+  // ページ(https://tomofune.github.io/helio-wheel/、リポジトリ名の
   // サブパス配下で配信される)では絶対パスがドメイン直下(/src/...)を
   // 指してしまい404になっていた(ユーザー報告「failed to fetch
   // __init__.py: 404」で発覚)。gh_upload(index.htmlがリポジトリ直下)と
