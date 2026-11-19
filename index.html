@@ -368,7 +368,7 @@
     border: 1px solid var(--line-strong); background: var(--bg-elevated); color: var(--accent-strong);
   }
   .tool-btn:hover { border-color: var(--accent); }
-  #badge-special-line { font-size: 0.74rem; color: var(--accent-strong); font-weight: 700; line-height: 1.4; }
+  #badge-special-line { font-size: 0.74rem; color: var(--accent-strong); font-weight: 700; line-height: 1.4; display: flex; flex-wrap: wrap; gap: 0 12px; align-items: center; }
   .time-seg-row { display: inline-flex; align-items: center; }
   .time-seg {
     font: inherit; font-family: "Space Mono", "JetBrains Mono", monospace;
@@ -1067,6 +1067,12 @@
     #topbar-badge-slot { display: flex; align-items: center; flex: 1; min-width: 0; }
     #topbar-badge-slot .chip { padding: 2px 9px; font-size: 0.74rem; line-height: 1.3; }
     #topbar-badge-slot #badge-line2 { font-size: 0.76rem; }
+    /* PCでは日食などの表示を日時の行の残り幅に収め、足りなければ「…」で切る
+       (折り返すとトップバーが高くなって円がずれる、2026-11-17)。 */
+    #topbar-badge-slot #badge-special-line { flex: 1 1 0; min-width: 0; flex-wrap: nowrap; white-space: nowrap; }
+    #topbar-badge-slot #badge-special-line > div { overflow: hidden; text-overflow: ellipsis; }
+    /* 二重円で2つ並ぶときは、短い方(経過図側の種類)は切らず、長い出生図側を切る。 */
+    #topbar-badge-slot #badge-special-line > div:not(:only-child):last-child { flex-shrink: 0; }
     .tool-btn { padding: 2px 9px; font-size: 0.72rem; }
     /* PCは円が常に左、度数などは右のタブで切り替えるので、画面下のタブは使わない。 */
 
@@ -1207,10 +1213,11 @@
        に戻した(実装は上の#current-state-lineのコメント参照)。実測
        (1365×728相当)で円の上のchrome合計が88px->76pxに縮小、5px弱の
        安全マージンを足して81pxとした。 */
-    #pane-wheel { display: flex !important; flex-direction: column; align-items: center; width: min(68vw, calc(100vh - 81px), 820px); }
+    /* 81px -> 94px(2026-11-17): 円の下のpadding 12pxを数えていなかった。 */
+    #pane-wheel { display: flex !important; flex-direction: column; align-items: center; width: min(68vw, calc(100vh - 94px), 820px); }
     /* margin-top 6px -> 0(2026-10-01) -- トップバーに状態ボタンの段が増えた分を
        ここで相殺し、円の大きさを再設計前と同じに保つ。 */
-    .wheel-wrap { max-width: min(68vw, calc(100vh - 81px), 820px); margin-top: 0; }
+    .wheel-wrap { max-width: min(68vw, calc(100vh - 94px), 820px); margin-top: 0; }
 
     /* min(22vw,360px)固定幅 -> flex:1で余った横幅を埋める方式に変更
        (2026-09-01、「やたらと開いている空間をもっと利用できないか」より)
@@ -1380,8 +1387,11 @@
             <button class="tool-btn" id="badge-now-btn" onclick="resetTransitToNow()">今</button>
             <button class="tool-btn" id="badge-jump-btn" onclick="toggleSpecialMenu(event)">日食・四季へ<span class="chip-caret">▾</span></button>
           </div>
+          <!-- 日食・月食・四季図の種類(2026-11-17): 別の段にすると、出た瞬間に
+               トップバーが約20px高くなって円が下へずれ、下端もはみ出していた。
+               日時の行の中に置いて、出ても消えても高さが変わらないようにした。 -->
+          <div id="badge-special-line" style="display:none;"></div>
         </div>
-        <div id="badge-special-line" style="display:none;"></div>
       </div>
 
       <!-- スマホの「円/度数/アスペクト/サビアン」の切り替えは、画面下のタブを
@@ -3229,7 +3239,12 @@
     if (displayMode !== 'N' && tSpecialMoment && ANCHOR_DATA.transit[tSpecialMoment]) {
       const d = zonedDateFor(transitTime, transitTzName);
       const t = ['year', 'month', 'day', 'hour', 'minute', 'second'].map(u => timeSegText(u, timeSegValue(u, d)));
-      parts.push(`${displayMode === 'both' ? '経過図' : ''}${typeLabelJa(tSpecialMoment, ANCHOR_DATA.transit[tSpecialMoment])}　${t[0]}-${t[1]}-${t[2]} ${t[3]}:${t[4]}:${t[5]} ${transitTzLabel}`);
+      // 二重円では2段目の日時が経過図側なので、ここでは日時を繰り返さず種類だけ
+      // (出生図側と並ぶと長くなり、幅が足りないと折り返して円がずれたため、2026-11-17)。
+      const tLabel = typeLabelJa(tSpecialMoment, ANCHOR_DATA.transit[tSpecialMoment]);
+      parts.push(displayMode === 'both'
+        ? `経過図${tLabel}`
+        : `${tLabel}　${t[0]}-${t[1]}-${t[2]} ${t[3]}:${t[4]}:${t[5]} ${transitTzLabel}`);
     }
     box.style.display = parts.length ? '' : 'none';
     box.innerHTML = '';
