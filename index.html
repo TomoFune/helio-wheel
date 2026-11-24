@@ -454,7 +454,10 @@
     max-width: 380px;
     margin: 14px 0 4px;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    /* repeat(2,1fr)だと、文字を大きくしたとき(--ts、下の「文字の大きさ」)に2列では
+       収まらず横にはみ出すので、幅に応じて列の数が減る形にした(普通の大きさでは
+       スマホ幅でも2列のまま)。 */
+    grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
     gap: 4px 14px;
   }
   .legend-item {
@@ -484,7 +487,7 @@
     letter-spacing: 0.04em; margin-bottom: 4px; padding-bottom: 4px;
     border-bottom: 1px solid var(--line-strong);
   }
-  .legend-grid.biwheel { column-gap: 18px; }
+  .legend-grid.biwheel { column-gap: 18px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .legend-sabian {
     font-size: 0.72rem; color: var(--ink-faint);
     border: 1px dashed var(--line-strong); border-radius: 5px;
@@ -621,6 +624,21 @@
   .row-btn .chevron { font-size: 0.9rem; }
 
   .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+
+  /* 文字の大きさ(図以外)(2026-11-24、お試し) -- 度数・アスペクト・サビアンの
+     一覧と、設定などのパネルの中身だけを、--ts倍に拡大する(CSSのzoom)。
+     円(SVG)と上のバーは対象外なので、円の大きさの計算には影響しない。
+     --tsは「文字の大きさ」の選択(1 / 1.25 / 1.5 / 1.8)で書き換わる。 */
+  :root { --ts: 1; }
+  .legend-grid, .aspect-table, .sabian-list { zoom: var(--ts); }
+  .side-panel .panel-head, .side-panel .panel-body { zoom: var(--ts); }
+  .ts-seg { display: flex; gap: 6px; }
+  .ts-seg button {
+    flex: 1; padding: 8px 4px; border-radius: var(--radius-sm); cursor: pointer;
+    border: 1px solid var(--line-strong); background: var(--bg-sunken);
+    color: var(--ink); font-family: inherit; font-size: 0.84rem; font-weight: 700;
+  }
+  .ts-seg button.on { background: var(--accent); color: var(--bg); border-color: var(--accent); }
   .switch {
     width: 42px; height: 24px; border-radius: 999px;
     background: var(--line-strong);
@@ -1253,7 +1271,10 @@
        エリス/キロンの計12行)がここに収まることを実機で確認済み。マイ
        ナー天体を増やして12行を超えた場合は、ページ全体ではなく、この
        パネルの中だけが内部スクロールする。 */
-    .legend-grid, .aspect-table, .sabian-list { max-height: calc(100vh - 260px); overflow-y: auto; }
+    /* 260px -> 185px(2026-11-24お試し) -- 260pxは上のchromeが大きかった頃の見積もりで、
+       今は一覧の上端が画面の上から約150pxなので、実際は余裕が約75pxあった。高さの低い
+       画面(1366x768のノートPCなど)で、サビアン12行がスクロールしないと見えない原因だった。 */
+    .legend-grid, .aspect-table, .sabian-list { max-height: calc((100vh - 185px) / var(--ts)); overflow-y: auto; }
   }
 </style>
 
@@ -1563,6 +1584,15 @@
             <div class="switch on" id="theme-switch" onclick="toggleThemeSwitch(this)"></div>
           </div>
         </div>
+        <div class="row-btn" style="cursor:default; flex-direction:column; align-items:stretch; gap:8px;">
+          <span>文字の大きさ(円以外)</span>
+          <div class="ts-seg" id="ts-seg">
+            <button data-lv="0" onclick="setTextScale(0)">標準</button>
+            <button data-lv="1" onclick="setTextScale(1)">大</button>
+            <button data-lv="2" onclick="setTextScale(2)">特大</button>
+            <button data-lv="3" onclick="setTextScale(3)">最大</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1599,6 +1629,12 @@
           <li>場所は「国」→「都市」の順に選びます。人物の出生地も同じで、都市を選ぶとタイムゾーンと緯度経度が自動で入ります。日本は、都道府県からも選べます。</li>
           <li>一覧にない場所は、「+ 場所を追加」で自分で足せます。地名を入れ、時刻の決め方を「同じ時刻の都市を選ぶ」か「緯度・経度を入れる」から選びます(緯度経度のときは、タイムゾーンを自動で判定します。インターネットに接続している必要があります)。足した場所は、国の一覧の「自分で追加した場所」にまとまり、選ぶと「この場所を編集」「この場所を削除」が出ます。</li>
           <li>自分で追加した場所は、この端末のブラウザの中に保存されます(人物のデータと同じで、端末ごとです)。ブラウザのデータを消すと、なくなります。位置情報を自動で取得することはありません。</li>
+        </ul>
+
+        <h3>文字の大きさ</h3>
+        <ul>
+          <li>☰設定の「文字の大きさ(円以外)」で、標準・大・特大・最大から選べます。度数・アスペクト・サビアンの一覧と、設定などのパネルの文字が大きくなります。円の大きさと、円の中の文字は変わりません。選んだ大きさは、次に開いたときも同じです。</li>
+          <li>大きくすると、一覧は縦に収まりきらないことがあります。そのときは、一覧の中を上下にスクロールして見ます。</li>
         </ul>
 
         <h3>度数・アスペクト・サビアン</h3>
@@ -2117,6 +2153,15 @@
     applyTheme(mode);
     saveSetting('theme', mode);
   }
+
+  // ---------- text size (円以外の文字の大きさ、2026-11-24お試し) ----------
+  const TEXT_SCALES = [1, 1.25, 1.5, 1.8];
+  function applyTextScale(lv) {
+    const i = (Number.isInteger(lv) && lv >= 0 && lv < TEXT_SCALES.length) ? lv : 0;
+    document.documentElement.style.setProperty('--ts', String(TEXT_SCALES[i]));
+    document.querySelectorAll('#ts-seg button').forEach(b => b.classList.toggle('on', Number(b.dataset.lv) === i));
+  }
+  function setTextScale(lv) { applyTextScale(lv); saveSetting('textScale', lv); }
 
   // ---------- view switching ----------
   function showView(name) {
@@ -6188,6 +6233,7 @@
   function restoreSettings() {
     mountPlaceTools('tz');
     applyTheme(loadSetting('theme', null));
+    applyTextScale(loadSetting('textScale', 0));
     ['wheel-degree-switch', 'aspect-switch', 'conj-switch'].forEach((id) => {
       const saved = loadSetting('switch:' + id, null);
       if (saved === null) return;  // 未保存(初回)なら、HTML/画面幅ベースの初期値をそのまま使う
