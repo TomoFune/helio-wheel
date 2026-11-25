@@ -172,6 +172,15 @@ DEEP_SKY_OBJECTS: dict[str, dict] = {
         "ra_deg": 35.1625,
         "dec_deg": 57.14138889,
     },
+    # --- 2026-11-26: polockさんの一覧の「M8,M20星雲、M21星団」(いて座、黄経271.07度)。M8の位置で代表させる ---
+    "m8_m20_m21": {
+        "label_ja": "M8・M20・M21(いて座)",
+        "name_en": "M8 / Lagoon Nebula (with M20, M21)",
+        "kind": "nebula",
+        "source": "SIMBAD basic data (mirror simbad.cfa.harvard.edu, queried 2026-11-26), ICRS J2000, M8 position",
+        "ra_deg": 270.90416666666664,
+        "dec_deg": -24.386666666666667,
+    },
 }
 
 

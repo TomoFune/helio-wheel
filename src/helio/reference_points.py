@@ -50,6 +50,50 @@ MAJOR_REFERENCE_KEYS: set[str] = {
 }
 
 
+
+# 起点の「恒星一覧」に出す星・星団・銀河(2026-11-26、「ないものはいらない」より)。
+# polockさん(メルさん)の285星の一覧と同じ内容 -- エンジンには「〜座の主星」など
+# 一覧にない星も入っているが(恒星の合の検索などで使う)、起点としては出さない。
+ORIGIN_LIST_KEYS: frozenset[str] = frozenset({
+    "achernar", "acrux", "acubens", "aculeus", "acumen", "albireo", "alchiba", "alcyone",
+    "aldebaran", "alderamin", "alf01_cap", "algedi", "algol", "alhena", "alioth", "alkaid", "alkes",
+    "alnair", "alnilam", "alnitak", "alphard", "alphecca", "alpheratz", "alrescha", "altair",
+    "andromeda_galaxy", "ankaa", "antares", "ara_principal", "arcturus", "arneb", "atria",
+    "beehive_cluster", "bellatrix", "bet01_sgr", "bet02_sgr", "bet_aql", "bet_ara", "bet_ari",
+    "bet_boo", "bet_cap", "bet_cas", "bet_cep", "bet_cet", "bet_cmi", "bet_cnc", "bet_col",
+    "bet_com", "bet_crb", "bet_crt", "bet_cru", "bet_crv", "bet_cvn", "bet_del", "bet_dra",
+    "bet_eri", "bet_her", "bet_lep", "bet_lup", "bet_lyr", "bet_oph", "bet_psc", "bet_sco",
+    "bet_tri", "bet_umi", "bet_vir", "betelgeuse", "canopus", "capella", "capulus", "castor",
+    "chi_dra", "chi_uma", "cor_caroli", "del_aqr", "del_ari", "del_cas", "del_cen", "del_cma",
+    "del_cnc", "del_cru", "del_crv", "del_dra", "del_gem", "del_her", "del_oph", "del_sco",
+    "del_sgr", "del_tau", "del_umi", "del_vir", "deneb", "deneb_algedi", "denebola", "diadem",
+    "dubhe", "elnath", "eps_aqr", "eps_aur", "eps_boo", "eps_car", "eps_cas", "eps_cma", "eps_cru",
+    "eps_crv", "eps_cyg", "eps_del", "eps_gem", "eps_hya", "eps_oph", "eps_peg", "eps_sco",
+    "eps_sgr", "eps_tau", "eta_aur", "eta_boo", "eta_cma", "eta_dra", "eta_gem", "eta_lyr",
+    "eta_peg", "eta_per", "eta_vir", "f16_tau", "f17_tau", "f19_tau", "f20_tau", "f23_tau",
+    "f27_tau", "f28_tau", "f53_eri", "f80_uma", "facies", "fawaris", "fomalhaut", "gacrux",
+    "galactic_center", "gam_and", "gam_aql", "gam_aqr", "gam_ari", "gam_boo", "gam_cap", "gam_cep",
+    "gam_cma", "gam_cnc", "gam_dra", "gam_eri", "gam_leo", "gam_lib", "gam_lup", "gam_lyr",
+    "gam_peg", "gam_sgr", "gam_tau", "gam_umi", "gam_vir", "gienah", "hadar", "hamal", "iot_aur",
+    "iot_boo", "iot_car", "iot_dra", "iot_ori", "iot_uma", "iot_vir", "kap02_boo", "kap_ori",
+    "kap_per", "kap_sco", "kap_vel", "ksi_and", "ksi_aqr", "ksi_cep", "ksi_cnc", "ksi_dra",
+    "ksi_gem", "ksi_per", "ksi_pup", "ksi_uma", "lam_her", "lam_leo", "lam_oph", "lam_ori",
+    "lam_sco", "lam_sgr", "lam_uma", "lam_vel", "lam_vir", "lup_principal", "m8_m20_m21", "markab",
+    "megrez", "menkalinan", "menkar", "merak", "miaplacidus", "mintaka", "mirach", "mirfak",
+    "mirzam", "mizar", "mothallah", "mu_boo", "mu_cep", "mu_dra", "mu_gem", "mu_leo", "mu_peg",
+    "mu_sgr", "mu_uma", "naos", "nu01_sgr", "nu_cap", "nu_oph", "nu_sco", "nunki", "ome_her",
+    "ome_sgr", "omi01_eri", "omi02_eri", "omi_leo", "peacock", "phact", "phecda", "pi01_cyg",
+    "pi03_ori", "pi_sgr", "polaris", "pollux", "praecipua", "procyon", "psi_dra", "pyx_principal",
+    "rasalgethi", "rasalhague", "regor", "regulus", "rho_pup", "rigel", "rigil_kentaurus", "rukbat",
+    "sabik", "sadalmelik", "sadalsuud", "sadr", "scheat", "schedar", "sex_principal", "sham",
+    "sig_dra", "sig_hya", "sig_sco", "sirius", "spica", "sualocin", "tau_sco", "tet01_ser",
+    "tet_aqr", "tet_aur", "tet_cen", "tet_leo", "tet_peg", "tet_sco", "thuban", "tsih", "unukalhai",
+    "ups02_eri", "vega", "vindemiatrix", "whirlpool_galaxy", "zet_aql", "zet_aur", "zet_cma",
+    "zet_dra", "zet_gem", "zet_leo", "zet_peg", "zet_sgr", "zet_tau", "zet_vir", "zosma",
+    "zubenelgenubi", "zubeneschamali"
+})
+
+
 def reference_info(key: str) -> dict:
     """The underlying dict for `key`, whichever namespace it's from --
     all three carry at least `label_ja`/`name_en`/`source`."""

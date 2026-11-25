@@ -1611,6 +1611,14 @@
           <li>左上の「日輪」を押すと、最初の画面(人物を選ぶ画面)に戻ります。</li>
         </ul>
 
+        <h3>起点(恒星・星団・銀河)を選ぶ</h3>
+        <ul>
+          <li>円の上の「起点」を押すと、起点を選ぶ画面が出ます。起点にした星が、牡羊座0度の位置になり、円全体がその星を基準に回ります。</li>
+          <li>「GCS(主要)」の欄には、GCSの8つ(シリウス・アルクトゥルス・アンタレス・アルシオン・トゥバン・オリオン三ツ星(中央)・北斗七星(中央)・アンドロメダ銀河)があります。</li>
+          <li>「恒星一覧」の欄には、285の恒星・星団・銀河が、黄経の順(牡羊座0度から)に並びます。上の検索欄に、星の名前・星座名・英語名の一部を入れると、絞り込めます(ひらがな・カタカナはどちらでも探せます)。</li>
+          <li>選んだ起点は、次に開いたときも同じです。「トロピカル」を選ぶと、星を起点にしない通常の図に戻ります。</li>
+        </ul>
+
         <h3>経過図の日時を動かす</h3>
         <ul>
           <li>日時の数字(年・月・日・時・分・秒)のどれかを押すと、その数字の色が変わります。これが「動かす単位」です。</li>
@@ -1804,53 +1812,55 @@
       <div class="panel-body">
         <div class="search-box">
           <span style="color:var(--ink-faint);">⌕</span>
-          <input type="text" placeholder="恒星名・星座名で検索">
+          <input type="text" id="ref-search" placeholder="恒星名・星座名で検索" oninput="filterRefList()">
         </div>
-        <div class="ref-item selected" onclick="pickRef(this,'tropical','トロピカル')" style="margin-bottom:10px; padding-left:6px; padding-right:6px; border-radius: var(--radius-sm); background: var(--accent-soft);">
+        <div class="ref-item selected" data-key="tropical" onclick="pickRef(this,'tropical','トロピカル')" style="margin-bottom:10px; padding-left:6px; padding-right:6px; border-radius: var(--radius-sm); background: var(--accent-soft);">
           <div class="ref-item-main"><span class="ref-item-name">トロピカル(恒星起点なし)</span><span class="ref-item-cat">初期設定 ・ 通常のヘリオセントリック黄経</span></div>
           <div class="ref-item-check">✓</div>
         </div>
         <div class="section-label" style="margin:0 0 10px;">恒星・銀河を起点にする</div>
 
-        <div class="tab-row">
-          <button class="tab-btn active">GCS(主要)</button>
-          <button class="tab-btn">88星座</button>
-          <button class="tab-btn">グループ中心</button>
-          <button class="tab-btn">星団・銀河</button>
+        <div class="tab-row" id="ref-tab-row">
+          <button class="tab-btn active" data-reftab="gcs" onclick="setRefTab('gcs')">GCS(主要)</button>
+          <button class="tab-btn" data-reftab="stars" onclick="setRefTab('stars')">恒星一覧</button>
         </div>
+        <div id="ref-gcs-list">
 
-        <div class="ref-item" onclick="pickRef(this,'sirius','シリウス')">
+        <div class="ref-item" data-key="sirius" onclick="pickRef(this,'sirius','シリウス')">
           <div class="ref-item-main"><span class="ref-item-name">シリウス</span><span class="ref-item-cat">おおいぬ座 α星</span></div>
           <div class="ref-item-check"></div>
         </div>
-        <div class="ref-item" onclick="pickRef(this,'arcturus','アルクトゥルス')">
+        <div class="ref-item" data-key="arcturus" onclick="pickRef(this,'arcturus','アルクトゥルス')">
           <div class="ref-item-main"><span class="ref-item-name">アルクトゥルス</span><span class="ref-item-cat">うしかい座 α星</span></div>
           <div class="ref-item-check"></div>
         </div>
-        <div class="ref-item" onclick="pickRef(this,'antares','アンタレス')">
+        <div class="ref-item" data-key="antares" onclick="pickRef(this,'antares','アンタレス')">
           <div class="ref-item-main"><span class="ref-item-name">アンタレス</span><span class="ref-item-cat">さそり座 α星</span></div>
           <div class="ref-item-check"></div>
         </div>
-        <div class="ref-item" onclick="pickRef(this,'alcyone','アルシオン')">
+        <div class="ref-item" data-key="alcyone" onclick="pickRef(this,'alcyone','アルシオン')">
           <div class="ref-item-main"><span class="ref-item-name">アルシオン</span><span class="ref-item-cat">おうし座 η星 ・ プレアデス星団</span></div>
           <div class="ref-item-check"></div>
         </div>
-        <div class="ref-item" onclick="pickRef(this,'thuban','トゥバン')">
+        <div class="ref-item" data-key="thuban" onclick="pickRef(this,'thuban','トゥバン')">
           <div class="ref-item-main"><span class="ref-item-name">トゥバン</span><span class="ref-item-cat">りゅう座 α星</span></div>
           <div class="ref-item-check"></div>
         </div>
-        <div class="ref-item" onclick="pickRef(this,'orion_belt','オリオン三ツ星(中央)')">
+        <div class="ref-item" data-key="orion_belt" onclick="pickRef(this,'orion_belt','オリオン三ツ星(中央)')">
           <div class="ref-item-main"><span class="ref-item-name">オリオン三ツ星(中央)</span><span class="ref-item-cat">ミンタカ・アルニラム・アルニタクの平均</span></div>
           <div class="ref-item-check"></div>
         </div>
-        <div class="ref-item" onclick="pickRef(this,'big_dipper','北斗七星(中央)')">
+        <div class="ref-item" data-key="big_dipper" onclick="pickRef(this,'big_dipper','北斗七星(中央)')">
           <div class="ref-item-main"><span class="ref-item-name">北斗七星(中央)</span><span class="ref-item-cat">7星の平均</span></div>
           <div class="ref-item-check"></div>
         </div>
-        <div class="ref-item" onclick="pickRef(this,'andromeda_galaxy','アンドロメダ銀河')">
+        <div class="ref-item" data-key="andromeda_galaxy" onclick="pickRef(this,'andromeda_galaxy','アンドロメダ銀河')">
           <div class="ref-item-main"><span class="ref-item-name">アンドロメダ銀河</span><span class="ref-item-cat">M31</span></div>
           <div class="ref-item-check"></div>
         </div>
+        </div>
+        <div id="ref-star-list" style="display:none;"><div class="ref-item-cat" style="padding:12px 4px;">読み込み中…</div></div>
+        <div id="ref-star-empty" class="ref-item-cat" style="display:none; padding:12px 4px;">見つかりません</div>
       </div>
     </div>
 
@@ -1889,14 +1899,12 @@
             <span class="field-label" style="margin-bottom:0;">円の外に恒星を表示(名前・サイン・度数)</span>
             <div class="switch on" id="conj-switch" onclick="toggleSwitch(this); buildChart();"></div>
           </div>
-          <!-- 検索範囲の3分類(2026-09-10、「恒星リスト選択はGCS/主要な
-               恒星・銀河/その他の3分類」より) -- 「その他」はまだデータ
-               未整備(工事中)。 -->
+          <!-- 検索範囲(2026-09-10に「GCS/主要/その他」の3分類にしたが、2026-11-26に
+               「その他もいらない」とのことで、GCSと主要の2つにした)。 -->
           <span class="field-label" style="margin-top:14px;">検索範囲</span>
-          <div class="segmented" id="conj-category-segmented" style="grid-template-columns:repeat(3,1fr);">
+          <div class="segmented" id="conj-category-segmented" style="grid-template-columns:repeat(2,1fr);">
             <button class="seg-btn" onclick="setConjunctionCategory(this,'gcs')">GCS</button>
             <button class="seg-btn active" onclick="setConjunctionCategory(this,'major')">主要</button>
-            <button class="seg-btn" onclick="setConjunctionCategory(this,'other')">その他(工事中)</button>
           </div>
           <div class="orb-slider-block" style="margin-top:12px;">
             <div class="orb-row">
@@ -2466,6 +2474,12 @@
   // ほしい」より)、人物のnatal時刻に限らず「今」など任意の瞬間でも同じ
   // ことができるよう切り出した。
   async function computeReferenceOrigins(base) {
+    REF_BASE = base;
+    // 恒星一覧から選んだ起点(GCS以外)は、前の瞬間の値が残ってしまうので捨てる。
+    // いま選んでいるものだけ、下で計算し直す(2026-11-25)。
+    for (const k of Object.keys(REF_LONGITUDES)) {
+      if (k !== 'tropical' && !GCS_STAR_KEYS.includes(k)) { delete REF_LONGITUDES[k]; delete REF_TROPICAL_LON[k]; }
+    }
     REF_LONGITUDES.tropical = await HelioEngine.computeMainLongitudes({ ...base, starKey: null });
     for (const key of GCS_STAR_KEYS) {
       try {
@@ -2478,6 +2492,38 @@
       if (refKey === 'tropical') continue;
       REF_TROPICAL_LON[refKey] = ((REF_LONGITUDES.tropical.mercury - REF_LONGITUDES[refKey].mercury) % 360 + 360) % 360;
     }
+    // 前回の保存で恒星一覧の起点だった場合は、起動のあと最初の計算が済んだここで戻す。
+    if (pendingRestoreRef) {
+      const r = pendingRestoreRef;
+      pendingRestoreRef = null;
+      currentRef = r.key;
+      currentRefLabel = r.label;
+      const lab = document.getElementById('menu-ref-label');
+      if (lab) lab.textContent = r.label;
+      syncRefSelected();
+    }
+    if (currentRef !== 'tropical') {
+      try { await ensureReferenceOrigin(currentRef); }
+      catch (err) { console.warn('[engine] failed to compute origin', currentRef, err); }
+    }
+  }
+  // 「この起点を選んだとき」に、その1つだけを計算する(2026-11-25、恒星一覧は約140件
+  // あり、全部を人物を選ぶたびに計算すると重い)。起点自身のトロピカル黄経を1回だけ
+  // 計算し、天体側は素の黄経からそれを引いて回す(GCSの起点と同じ結果になる)。
+  // 実測: 1件あたり約60〜150ms(全天体を計算し直す方式の場合)。ここは起点の黄経
+  // だけなので、それよりずっと軽い。
+  let REF_BASE = null;  // 直近のcomputeReferenceOrigins()の瞬間(起点の黄経の計算に使う)
+  let pendingRestoreRef = null;  // 保存してあった起点が恒星一覧のものだったとき、計算が済むまで待たせる
+  async function ensureReferenceOrigin(key) {
+    if (key === 'tropical' || REF_LONGITUDES[key]) return true;
+    if (!engineAvailable || !REF_BASE || !REF_LONGITUDES.tropical) return false;
+    await ensureEngineReady();
+    const lon = await HelioEngine.computeReferenceLongitude(key, REF_BASE);
+    const rot = {};
+    for (const k in REF_LONGITUDES.tropical) rot[k] = (((REF_LONGITUDES.tropical[k] - lon) % 360) + 360) % 360;
+    REF_LONGITUDES[key] = rot;
+    REF_TROPICAL_LON[key] = lon;
+    return true;
   }
   // 選択中の人物の本物の出生図データをPyodideで実際に計算し、REF_LONGITUDES
   // (主要9天体+小惑星・準惑星、トロピカル+全GCS起点)とANCHOR_DATA.natal
@@ -2603,6 +2649,19 @@
     try {
       updateControlAvailability();
       if (engineAvailable) await refreshTransitNowAnchor();
+      // 前回の起点が恒星一覧のものだったときは、「今」の瞬間で計算して戻す(2026-11-25)。
+      if (engineAvailable && pendingRestoreRef) {
+        try {
+          const now = new Date();
+          await computeReferenceOrigins({
+            year: now.getUTCFullYear(), month: now.getUTCMonth() + 1, day: now.getUTCDate(),
+            hour: now.getUTCHours(), minute: now.getUTCMinutes(), second: now.getUTCSeconds(),
+            tzName: 'UTC',
+          });
+        } catch (err) {
+          console.warn('[engine] failed to restore saved origin for standalone transit', err);
+        }
+      }
       buildChart();
       updateBadge();
     } finally {
@@ -3810,12 +3869,126 @@
   }
   let currentRef = 'tropical';
   let currentRefLabel = 'トロピカル';
+  // ---------- 起点の恒星一覧(2026-11-25) ----------
+  // 「GCS(主要)」の欄はこれまでどおりの8つ。「恒星一覧」の欄は、エンジンにある恒星・
+  // 星団・銀河のすべて(約140件)を、黄経の順(おひつじ座0度から)に並べる。GCSの欄に
+  // もあるもの(シリウスなど)は、どちらにも出る。選んだ1つだけを、選んだときに
+  // 計算する(ensureReferenceOrigin)。検索欄は、名前・星座名・英名で絞り込む
+  // (ひらがな/カタカナは区別しない)。
+  let referenceCatalog = null;
+  let refCatalogLoading = false;
+  const GREEK_ABBR = { alf: 'α', bet: 'β', gam: 'γ', del: 'δ', eps: 'ε', zet: 'ζ', eta: 'η', the: 'θ', iot: 'ι', kap: 'κ', lam: 'λ', mu: 'μ', nu: 'ν', ksi: 'ξ', omi: 'ο', pi: 'π', rho: 'ρ', sig: 'σ', tau: 'τ', ups: 'υ', phi: 'φ', chi: 'χ', psi: 'ψ', ome: 'ω' };
+  function refCatText(it) {
+    if (it.kind === 'star') {
+      // 英名が"alf CMa" / "gam02 Nor"の形のものは「おおいぬ座 α星」の形にする。
+      // "Regulus"のような固有名のものは、星座名だけ。
+      const m = /^([a-z]{2,4})\.?(\d*) /.exec(it.nameEn || '');
+      if (m && GREEK_ABBR[m[1]]) {
+        const n = m[2] ? String(parseInt(m[2], 10)) : '';
+        return it.cat + ' ' + GREEK_ABBR[m[1]] + n + '星';
+      }
+      // "17 Tau"の形(フラムスチード番号)は「おうし座 17番星」
+      const f = /^(\d+) [A-Za-z]{2,3}$/.exec(it.nameEn || '');
+      if (f) return it.cat + ' ' + f[1] + '番星';
+      return it.cat;
+    }
+    const mm = /\bM\d+\b/.exec(it.nameEn || '');
+    return mm ? it.cat + ' ・ ' + mm[0] : it.cat;
+  }
+  function refSearchNorm(s) {
+    // ひらがな/カタカナの違いと大文字小文字をなくして比べる
+    return String(s).toLowerCase().replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
+  }
+  function renderRefStarList() {
+    const box = document.getElementById('ref-star-list');
+    if (!box) return;
+    box.textContent = '';
+    if (!referenceCatalog) {
+      const d = document.createElement('div');
+      d.className = 'ref-item-cat';
+      d.style.padding = '12px 4px';
+      d.textContent = engineAvailable ? '読み込み中…' : '計算エンジンが使えないため、一覧を出せません';
+      box.appendChild(d);
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    referenceCatalog.forEach((it) => {
+      const row = document.createElement('div');
+      row.className = 'ref-item';
+      row.dataset.key = it.key;
+      const cat = refCatText(it);
+      row.dataset.search = refSearchNorm([it.label, cat, it.nameEn].join(' '));
+      // 起点ボタンやチップに出す名前は、「(M31)」のような括弧書きを除いた短い形にする
+      const shortLabel = it.label.replace(/[((].*[))]\s*$/, '');
+      row.addEventListener('click', function () { pickRef(this, it.key, shortLabel); });
+      const main = document.createElement('div');
+      main.className = 'ref-item-main';
+      const nm = document.createElement('span');
+      nm.className = 'ref-item-name';
+      nm.textContent = it.label;
+      const ct = document.createElement('span');
+      ct.className = 'ref-item-cat';
+      ct.textContent = cat;
+      main.appendChild(nm);
+      main.appendChild(ct);
+      const chk = document.createElement('div');
+      chk.className = 'ref-item-check';
+      row.appendChild(main);
+      row.appendChild(chk);
+      frag.appendChild(row);
+    });
+    box.appendChild(frag);
+    syncRefSelected();
+    filterRefList();
+  }
+  async function loadReferenceCatalog() {
+    if (referenceCatalog || refCatalogLoading || !engineAvailable) { renderRefStarList(); return; }
+    refCatalogLoading = true;
+    try {
+      await ensureEngineReady();
+      referenceCatalog = await HelioEngine.listReferenceCatalog();
+    } catch (err) {
+      console.warn('[engine] failed to load reference catalog', err);
+    }
+    refCatalogLoading = false;
+    renderRefStarList();
+  }
+  let refTab = 'gcs';
+  function setRefTab(name) {
+    refTab = name;
+    document.querySelectorAll('#ref-tab-row .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.reftab === name));
+    document.getElementById('ref-gcs-list').style.display = name === 'gcs' ? '' : 'none';
+    document.getElementById('ref-star-list').style.display = name === 'stars' ? '' : 'none';
+    if (name === 'stars') loadReferenceCatalog();
+    filterRefList();
+  }
+  function filterRefList() {
+    const input = document.getElementById('ref-search');
+    const q = input ? refSearchNorm(input.value.trim()) : '';
+    // 文字を入れたら、GCSの欄(8件)ではなく、全部入りの恒星一覧で探す
+    if (q && refTab === 'gcs') { setRefTab('stars'); return; }
+    const box = document.getElementById(refTab === 'gcs' ? 'ref-gcs-list' : 'ref-star-list');
+    let shown = 0, total = 0;
+    box.querySelectorAll('.ref-item').forEach((row) => {
+      total++;
+      const hay = row.dataset.search || refSearchNorm(row.textContent);
+      const ok = !q || hay.includes(q);
+      row.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    const empty = document.getElementById('ref-star-empty');
+    if (empty) empty.style.display = (refTab === 'stars' && total > 0 && shown === 0) ? '' : 'none';
+  }
+  // いま選んでいる起点の印(✓)を、一覧の中の同じ起点すべてに付ける。GCSの欄と恒星一覧の
+  // 両方にあるもの(シリウスなど)は、両方に付く。
+  function syncRefSelected() {
+    document.querySelectorAll('.ref-item').forEach(i => i.classList.toggle('selected', i.dataset.key === currentRef));
+  }
   async function pickRef(el, key, label) {
-    document.querySelectorAll('.ref-item').forEach(i => i.classList.remove('selected'));
-    el.classList.add('selected');
     document.getElementById('menu-ref-label').textContent = label;
     currentRef = key;
     currentRefLabel = label;
+    syncRefSelected();
     saveSetting('currentRef', { key, label });
     // 「経過図(今)を見る」経由(currentPersonId===null && currentPersonName
     // ===''、= 一度も人物のnatalデータを計算していない)でTを見ている時に
@@ -3836,6 +4009,22 @@
       } catch (err) {
         console.warn('[engine] failed to compute reference origins for standalone transit', err);
         showPeToast('起点の計算に失敗しました');
+      }
+    }
+    // 恒星一覧から選んだ起点は、ここで初めて(選んだ1つだけ)計算する。
+    if (key !== 'tropical' && !REF_LONGITUDES[key]) {
+      let ok = false;
+      try { ok = await ensureReferenceOrigin(key); }
+      catch (err) { console.warn('[engine] failed to compute origin', key, err); }
+      if (!ok) {
+        // 計算できなかったときは、選ぶ前の状態(トロピカル)に戻す。
+        currentRef = 'tropical';
+        currentRefLabel = 'トロピカル';
+        document.getElementById('menu-ref-label').textContent = 'トロピカル';
+        saveSetting('currentRef', { key: 'tropical', label: 'トロピカル' });
+        syncRefSelected();
+        showPeToast('起点の計算に失敗しました');
+        return;
       }
     }
     buildChart();  // selection propagates immediately, no separate "apply" step
@@ -4520,15 +4709,13 @@
   // 実際に検索するようにした(2026-09-10、「恒星・銀河との合を任意の
   // 人物へ一般化」より) -- 以前はサンプル花子の1990年固定データを
   // 埋め込んだモックアップだった(CATALOG_STARS、廃止)。検索範囲は
-  // 3分類(GCS/主要な恒星・銀河/その他)から選べる -- 「その他」
-  // (polockさんの285星のうち太文字以外の約203星)はまだデータ未整備で
-  // 「工事中」表示のみ。
+  // 2分類(GCS/主要な恒星・銀河)から選べる(「その他」は2026-11-26に廃止)。
   const GCS_CONJUNCTION_KEYS = ['sirius', 'arcturus', 'antares', 'alcyone', 'thuban', 'andromeda_galaxy'];
   let majorReferenceKeys = [];  // HelioEngine.listMajorReferenceKeys()で起動時に取得(87件)
-  let conjunctionCategory = loadSetting('conjunctionCategory', 'major');  // 'gcs' | 'major' | 'other'
+  // 'gcs' | 'major'(以前は'other'もあったが2026-11-26に廃止。保存してあった'other'は'major'にする)
+  let conjunctionCategory = loadSetting('conjunctionCategory', 'major') === 'gcs' ? 'gcs' : 'major';
   function currentConjunctionSearchKeys() {
     if (conjunctionCategory === 'gcs') return GCS_CONJUNCTION_KEYS;
-    if (conjunctionCategory === 'other') return [];  // 工事中、意図的に空
     return majorReferenceKeys;
   }
   function setConjunctionCategory(el, category) {
@@ -4697,9 +4884,7 @@
     container.innerHTML = '';
     if (summary.length === 0) {
       let msg = 'このオーブ内には見つかりません。オーブを広げてみてください。';
-      if (conjunctionCategory === 'other') {
-        msg = 'この分類(その他)はまだ準備中です。GCSか主要な恒星・銀河をお試しください。';
-      } else if (!engineAvailable) {
+      if (!engineAvailable) {
         msg = 'この機能はPyodide版(GitHub Pages/ローカル起動)でのみ利用できます。';
       }
       container.innerHTML = `<p style="color:var(--ink-faint); font-size:0.85rem;">${msg}</p>`;
@@ -6259,15 +6444,17 @@
     }
     const savedRef = loadSetting('currentRef', null);
     if (savedRef !== null) {
-      currentRef = savedRef.key;
-      currentRefLabel = savedRef.label;
-      document.getElementById('menu-ref-label').textContent = savedRef.label;
-      document.querySelectorAll('.ref-item').forEach((item) => {
-        // onclick="pickRef(this,'key','label')" からkeyだけ拾う(専用の
-        // data属性を持たせていない既存markup前提の簡易マッチ)。
-        const isMatch = item.getAttribute('onclick')?.includes("'" + savedRef.key + "'");
-        item.classList.toggle('selected', !!isMatch);
-      });
+      if (savedRef.key === 'tropical' || REF_LONGITUDES[savedRef.key]) {
+        currentRef = savedRef.key;
+        currentRefLabel = savedRef.label;
+        document.getElementById('menu-ref-label').textContent = savedRef.label;
+      } else {
+        // 恒星一覧から選んだ起点(GCS以外)は、人物の出生の瞬間で計算するまで値が
+        // ないので、それまではトロピカルで始め、最初の計算が済んだら
+        // computeReferenceOrigins()が戻す(2026-11-25)。
+        pendingRestoreRef = savedRef;
+      }
+      syncRefSelected();
     }
     // conjunctionCategory自体はスクリプト上部で既にloadSetting済み
     // (デフォルト'major') -- ここではHTML側のボタンのactive表示を

@@ -289,6 +289,62 @@ json.dumps(sorted(MAJOR_REFERENCE_KEYS))
     return JSON.parse(json);
   }
 
+  // 起点に選べる恒星・星団・銀河の一覧(2026-11-25、「恒星一覧で、銀河とか星団も
+  // 含めていい」より) -- STARS(個別の恒星)とDEEP_SKY_OBJECTS(星団・銀河など)を
+  // 1つにまとめ、黄経(J2000のトロピカル)の昇順に並べて返す。GCSのグループ中心
+  // (オリオン三ツ星・北斗七星)は含めない(GCSの欄にある)。一覧を作るためだけの
+  // 値なので、歳差は気にせず、並び順がずれない基準(J2000)で1回だけ計算する。
+  async function listReferenceCatalog() {
+    if (!pyodide) throw new Error("HelioEngine.boot() がまだ完了していません");
+    const json = await pyodide.runPythonAsync(`
+import json
+from astropy.time import Time
+from helio.stars import STARS, stars_heliocentric_longitudes
+from helio.deep_sky import DEEP_SKY_OBJECTS, deep_sky_heliocentric_longitudes
+from helio.reference_points import ORIGIN_LIST_KEYS
+
+t = Time(2451545.0, format="jd", scale="tt")
+slons = stars_heliocentric_longitudes(list(STARS), t)
+dlons = deep_sky_heliocentric_longitudes(t)
+KIND_JA = {"galaxy": "銀河", "cluster": "星団", "nebula": "星雲", "galactic_center": "銀河系の中心"}
+items = []
+for k, s in STARS.items():
+    if k not in ORIGIN_LIST_KEYS:
+        continue
+    items.append({"key": k, "label": s["label_ja"], "nameEn": s["name_en"], "cat": s["constellation_ja"], "kind": "star", "lon": slons[k]})
+for k, d in DEEP_SKY_OBJECTS.items():
+    if k not in ORIGIN_LIST_KEYS:
+        continue
+    items.append({"key": k, "label": d["label_ja"], "nameEn": d["name_en"], "cat": KIND_JA.get(d["kind"], "星団・銀河"), "kind": "deepsky", "lon": dlons[k]})
+items.sort(key=lambda x: x["lon"])
+json.dumps(items)
+`);
+    return JSON.parse(json);
+  }
+
+  // 1つの起点(恒星・星団・銀河)自身のトロピカル黄経だけを、指定した瞬間で
+  // 計算する(2026-11-25) -- 全天体を計算し直す必要はなく、天体側は素の黄経から
+  // この値を引くだけで起点の枠に回せる。起点を選んだときに、選んだ1つだけ呼ぶ。
+  async function computeReferenceLongitude(starKey, { year, month, day, hour, minute, second = 0, tzName }) {
+    if (!pyodide) throw new Error("HelioEngine.boot() がまだ完了していません");
+    pyodide.globals.set("_year", year);
+    pyodide.globals.set("_month", month);
+    pyodide.globals.set("_day", day);
+    pyodide.globals.set("_hour", hour);
+    pyodide.globals.set("_minute", minute);
+    pyodide.globals.set("_second", second);
+    pyodide.globals.set("_tz_name", tzName);
+    pyodide.globals.set("_star_key", starKey);
+    const v = await pyodide.runPythonAsync(`
+from helio.time_resolve import resolve_birth_time
+from helio.reference_points import resolve_reference_longitude
+
+resolved = resolve_birth_time(_year, _month, _day, _hour, _minute, _second, tz_name=_tz_name)
+float(resolve_reference_longitude(_star_key, resolved.time))
+`);
+    return Number(v);
+  }
+
   // 恒星・銀河との合(コンジャンクション)をその都度実際に検索する
   // (2026-09-10、「恒星・銀河との合を任意の人物へ一般化」より) -- 以前は
   // サンプル花子の1990年のデータを固定で埋め込んでいたモックアップを
@@ -425,6 +481,6 @@ with Storage() as store:
 
   return {
     boot, computeMainLongitudes, findTransitEclipse, findTransitSeason, computeNatalEclipseChart,
-    findConjunctions, listMajorReferenceKeys, listPeople, savePerson, deletePerson,
+    findConjunctions, listMajorReferenceKeys, listReferenceCatalog, computeReferenceLongitude, listPeople, savePerson, deletePerson,
   };
 })();
