@@ -712,6 +712,7 @@
   .orb-row { display: flex; align-items: center; gap: 10px; }
   .orb-row input[type="range"] { flex: 1; accent-color: var(--accent); }
   .orb-value { font-size: 0.8rem; width: 44px; text-align: right; color: var(--accent); font-weight: 700; }
+  .wn-end { font-size: 0.84rem; font-weight: 700; }
 
   /* ---------- Slide-in panels ---------- */
   /* Dedicated clipping layer for the scrim + side-panels (2026-08-31,
@@ -747,6 +748,11 @@
     pointer-events: auto;
   }
   .side-panel.show { transform: translateX(0); box-shadow: var(--shadow); }
+  /* 円の大きさのつまみを動かしている間(2026-11-26)は、後ろの円が見えるように、
+     つまみの行だけを残して設定パネルを透かす(スマホではパネルが円を隠すため)。 */
+  .scrim.peek { background: transparent; }
+  .side-panel.peek { background: transparent; border-color: transparent; box-shadow: none; }
+  .side-panel.peek .panel-head, .side-panel.peek .panel-body > :not(#wn-row) { opacity: 0; }
 
   .panel-head {
     display: flex; align-items: center; justify-content: space-between;
@@ -1601,6 +1607,14 @@
             <button data-lv="3" onclick="setTextScale(3)">最大</button>
           </div>
         </div>
+        <div class="row-btn" id="wn-row" style="cursor:default; flex-direction:column; align-items:stretch; gap:8px;">
+          <span>円の数字と惑星の大きさ</span>
+          <div class="orb-row">
+            <span class="wn-end">標準</span>
+            <input type="range" min="0" max="100" step="1" value="0" id="wn-slider" aria-label="円の数字と惑星の大きさ" oninput="setWheelSize(this.value)">
+            <span class="wn-end">大</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1624,7 +1638,7 @@
           <li>円の上の「起点」を押すと、起点を選ぶ画面が出ます。起点にした星が、牡羊座0度の位置になり、円全体がその星を基準に回ります。</li>
           <li>「GCS(主要)」の欄には、GCSの8つ(シリウス・アルクトゥルス・アンタレス・アルシオン・トゥバン・オリオン三ツ星(中央)・北斗七星(中央)・アンドロメダ銀河)があります。</li>
           <li>「恒星一覧」の欄には、285の恒星・星団・銀河が、黄経の順(牡羊座0度から)に並びます。上の検索欄に、星の名前・星座名・英語名の一部を入れると、絞り込めます(ひらがな・カタカナはどちらでも探せます)。</li>
-          <li>選んだ起点は、次に開いたときも同じです。「トロピカル」を選ぶと、星を起点にしない通常の図に戻ります。</li>
+          <li>選んだ起点は、次に開いたときも同じです。「トロピカル(春分点が起点)」を選ぶと、春分点が牡羊座0度になる、通常の図に戻ります。</li>
         </ul>
 
         <h3>経過図の日時を動かす</h3>
@@ -1651,6 +1665,7 @@
         <ul>
           <li>☰設定の「文字の大きさ(円以外)」で、標準・大・特大・最大から選べます。度数・アスペクト・サビアンの一覧と、設定などのパネルの文字が大きくなります。円の大きさと、円の中の文字は変わりません。選んだ大きさは、次に開いたときも同じです。</li>
           <li>大きくすると、一覧は縦に収まりきらないことがあります。そのときは、一覧の中を上下にスクロールして見ます。</li>
+          <li>円の中の度数の数字と惑星記号は、☰設定の「円の数字と惑星の大きさ」のつまみで、大きさを変えられます(左端が標準、右へ動かすほど大きくなります)。つまみを動かしている間は、設定の画面が透けて、後ろの円が見えます。円の大きさは変わりません。大きくすると、惑星が混み合う所では、記号と数字の位置が少し大きくずれることがあります(本当の位置は、外側から引いた線で示します)。二重円は数字を出さないので、惑星記号だけが大きくなります。</li>
         </ul>
 
         <h3>度数・アスペクト・サビアン</h3>
@@ -1831,7 +1846,7 @@
       </div>
       <div class="panel-body" id="ref-body">
         <div class="ref-item selected" data-key="tropical" onclick="pickRef(this,'tropical','トロピカル')" style="margin-bottom:10px; padding-left:6px; padding-right:6px; border-radius: var(--radius-sm); background: var(--accent-soft);">
-          <div class="ref-item-main"><span class="ref-item-name">トロピカル(恒星起点なし)</span><span class="ref-item-cat">初期設定 ・ 通常のヘリオセントリック黄経</span></div>
+          <div class="ref-item-main"><span class="ref-item-name">トロピカル(春分点が起点)</span><span class="ref-item-cat">初期設定 ・ 恒星を起点にしない通常の図</span></div>
           <div class="ref-item-check">✓</div>
         </div>
         <div id="ref-gcs-list">
@@ -2180,6 +2195,22 @@
     document.querySelectorAll('#ts-seg button').forEach(b => b.classList.toggle('on', Number(b.dataset.lv) === i));
   }
   function setTextScale(lv) { applyTextScale(lv); saveSetting('textScale', lv); }
+
+  // ---------- 円の中の数字と惑星の大きさ(つまみで標準〜大、2026-11-26。描き方はdrawBodyRing側) ----------
+  function syncWheelSizeUI() {
+    document.getElementById('wn-slider').value = wheelSize;
+  }
+  function setWheelSize(v) {
+    wheelSize = clampWheelSize(v);
+    saveSetting('wheelSize', wheelSize);
+    buildChart();
+  }
+  (function wireWheelSizePeek() {
+    const peek = on => ['main-menu-panel', 'scrim'].forEach(id => document.getElementById(id).classList.toggle('peek', on));
+    document.getElementById('wn-slider').addEventListener('pointerdown', () => peek(true));
+    // 指やマウスを、つまみの外で離しても戻るように、画面全体で受ける
+    ['pointerup', 'pointercancel'].forEach(ev => window.addEventListener(ev, () => peek(false)));
+  })();
 
   // ---------- view switching ----------
   function showView(name) {
@@ -5946,11 +5977,11 @@
   // 孤立した天体・合になったタグ、どちらの終点(dx,dy)でも同じように
   // 使える汎用版(2026-09-03、合クラスタをタグ+ガイド線方式に作り直した
   // ときに、孤立天体用のガイド線コードと統合)。
-  function drawGuideLine(markers, deg, ringInner, dx, dy) {
+  function drawGuideLine(markers, deg, ringInner, dx, dy, stop = 8) {
     const [xRing, yRing] = polar(200, 200, ringInner, deg);
     const ddx = dx - xRing, ddy = dy - yRing;
     const dist = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
-    const xOut = dx - (ddx / dist) * 8, yOut = dy - (ddy / dist) * 8;
+    const xOut = dx - (ddx / dist) * stop, yOut = dy - (ddy / dist) * stop;
     const guide = document.createElementNS("http://www.w3.org/2000/svg", "line");
     guide.setAttribute("x1", xRing); guide.setAttribute("y1", yRing);
     guide.setAttribute("x2", xOut); guide.setAttribute("y2", yOut);
@@ -5992,7 +6023,9 @@
     const [degStr, minStr] = formatDegMinParts(deg);
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.setAttribute("class", "wheel-degree-label");
-    const lineGap = fontSize * 0.95;  // 上下2行の中心間距離(実測して調整)
+    // 上下2行の中心間距離(実測して調整)。大きくするほど少し詰めて(0.95→0.9)、度と分の
+    // まとまりが隣の天体の数字と見分けやすいようにする。
+    const lineGap = fontSize * (0.95 - 0.05 * (fontSize - DEGREE_FONT) / (DEGREE_FONT_BIG - DEGREE_FONT));
     [[degStr, dy - lineGap / 2], [minStr, dy + lineGap / 2]].forEach(([txt, y]) => {
       const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
       t.setAttribute("x", dx); t.setAttribute("y", y);
@@ -6050,6 +6083,41 @@
   // グリフの高さはfontSizeの約1.44倍(実測34.6/24)。
   const DEGREE_CHIP_FOOTPRINT = DEGREE_FONT * 2.35;
   const GLYPH_FOOTPRINT = ISOLATED_GLYPH_FONT * 1.44;
+  // 円の数字と惑星の大きさ(2026-11-26、「文字の大きさは、ホロスコープの数字のことでした」
+  // という利用者の声より)。つまみで「標準」から「大」までを連続して選ぶ。円の大きさは
+  // 変えず、数字と記号を大きくして、その分だけ内側へ寄せる。標準(つまみが左端)の配置は、
+  // いままでと変えない。下の*_BIGは、つまみが右端(上限)のときの値。
+  const BODY_R_BIG = 163;        // 数字(2段)がサインの帯(185)の内側に収まる半径
+  const DEGREE_FONT_BIG = 18;    // 円を小さくせずに入るのは、このあたりまで
+  // 惑星記号も大きくする(2026-11-26、「惑星は、これ限界？」より)。数字の内側と
+  // アスペクト線の接続点(ASPECT_ANCHOR_R)の間に収まる大きさと半径。
+  const GLYPH_FONT_BIG = 30;     // 標準は24。これより大きいと、混み合う所のずれが目立って増える
+  const GLYPH_R_BIG = 126;
+  // 上限のときの、隣どうしが離れていてほしい数字の幅と高さ(2段ぶん、少し余白込み)
+  const BIG_CHIP_W = 29, BIG_CHIP_H = 41;
+  function clampWheelSize(v) { const n = Number(v); return Number.isFinite(n) ? Math.min(100, Math.max(0, n)) : 0; }
+  let wheelSize = clampWheelSize(loadSetting('wheelSize', 0));  // 0=標準 〜 100=大
+  // いまのつまみの位置の、半径と文字の大きさ(標準と上限の間を直線でつなぐ)
+  function wheelLayout() {
+    const t = wheelSize / 100, mix = (a, b) => a + (b - a) * t;
+    return {
+      t,
+      bodyR: mix(BODY_R, BODY_R_BIG), glyphR: mix(GLYPH_R, GLYPH_R_BIG),
+      degreeFont: mix(DEGREE_FONT, DEGREE_FONT_BIG), glyphFont: mix(ISOLATED_GLYPH_FONT, GLYPH_FONT_BIG),
+      guideStop: mix(8, 15),  // 大きいほど数字の中心がリングから離れるので、線を手前で長めに止める
+    };
+  }
+  // 必要な角度の間隔は、円のどの向きにあるかで違う(上下の位置では横に並ぶので
+  // 横幅、左右の位置では縦に並ぶので2段の高さ)。大きくするときはそれを向きごとに
+  // 計算して、混み合う所の広がりすぎと、数字がつながって読めるのを両方防ぐ。
+  function orientedHalfGapDeg(deg, lay) {
+    const rad = deg * Math.PI / 180;
+    const sin = Math.max(Math.abs(Math.sin(rad)), 1e-6), cos = Math.max(Math.abs(Math.cos(rad)), 1e-6);
+    const need = (w, h, r) => Math.min(w / sin, h / cos) / r;
+    const k = lay.degreeFont / DEGREE_FONT_BIG;
+    const gap = Math.max(need(BIG_CHIP_W * k, BIG_CHIP_H * k, lay.bodyR), need(lay.glyphFont * 0.92, lay.glyphFont, lay.glyphR));
+    return gap / 2 * (180 / Math.PI);
+  }
   // アスペクト線の接続点(2026-09-19に導入、2026-09-20単純化・拡大) --
   // 表示用にずらした位置ではなく、各天体の「本当の角度」に沿って、
   // グリフ(GLYPH_R)のすぐ内側の、全天体共通の1つの固定半径につなぐ。
@@ -6065,6 +6133,7 @@
   const BIWHEEL_DIVIDER_R = 136;
   const BIWHEEL_NATAL_R = 110;
   function drawBodyRing(planets, markers, { baseRadius, step, ringInner, color, glyphColor = color, guides = true, showDegrees = true }) {
+    const lay = wheelLayout(), { glyphFont } = lay;
     if (!showDegrees) {
       // 二重円: 度数は出さない(2026-09-01の決定、2026-09-26に再確認)。
       // グリフは単一円と同じ大きさ(ISOLATED_GLYPH_FONT)で、各リングの
@@ -6073,13 +6142,13 @@
       // ほしい」より -- 以前は18の小さいグリフを中心寄りに段違いで積んで
       // いた)。本当の角度は、リング外側(ringInner)からのガイド線で示す。
       const radii = {};
-      const halfGapDeg = (GLYPH_FOOTPRINT / 2) / baseRadius * (180 / Math.PI) * 0.8;
+      const halfGapDeg = (GLYPH_FOOTPRINT * (glyphFont / ISOLATED_GLYPH_FONT) / 2) / baseRadius * (180 / Math.PI) * 0.8;
       const items = planets.map(p => ({ key: p.key, deg: p.deg, halfGapDeg }));
       sweepBodyAngles(items);
       const displayDegByKey = new Map(items.map(it => [it.key, it.deg]));
       planets.forEach(p => {
         const [gx, gy] = polar(200, 200, baseRadius, displayDegByKey.get(p.key));
-        drawGlyph(markers, gx, gy, p.g, glyphColor, ISOLATED_GLYPH_FONT);
+        drawGlyph(markers, gx, gy, p.g, glyphColor, glyphFont);
         radii[p.key] = baseRadius;
         if (guides) drawGuideLine(markers, p.deg, ringInner, gx, gy);
       });
@@ -6108,16 +6177,26 @@
     // と確認できたため、ここは重なりゼロを狙わず、多少の接触を許容する
     // 側へ倒す(0.8 = 実測footprintの8割まで間隔を詰める)。
     const halfGapDeg = Math.max(chipHalfDeg, glyphHalfDeg) * 0.8;
-    const items = planets.map(p => ({ key: p.key, deg: p.deg, halfGapDeg }));
+    const { t, bodyR, glyphR, degreeFont, guideStop } = lay;
+    // 標準は全天体共通の間隔。大きくするにつれて、向きごとに計算した間隔へ寄せる。
+    const gapAt = deg => (1 - t) * halfGapDeg + t * orientedHalfGapDeg(deg, lay);
+    const items = planets.map(p => ({ key: p.key, deg: p.deg, halfGapDeg: gapAt(p.deg) }));
+    if (t > 0) {
+      // 一度並べてみて、実際に置かれる向きで必要な間隔を計算し直してから、並べる
+      // (混み合う所は本当の位置から大きくずれ、向きが変わるため)
+      const trial = items.map(it => ({ ...it }));
+      sweepBodyAngles(trial);
+      items.forEach((it, i) => { it.halfGapDeg = gapAt(trial[i].deg); });
+    }
     sweepBodyAngles(items);
     const displayDegByKey = new Map(items.map(it => [it.key, it.deg]));
     planets.forEach(p => {
       const displayDeg = displayDegByKey.get(p.key);
-      const [dx, dy] = polar(200, 200, BODY_R, displayDeg);
-      const [gx, gy] = polar(200, 200, GLYPH_R, displayDeg);
-      drawGlyph(markers, gx, gy, p.g, glyphColor, ISOLATED_GLYPH_FONT);
-      drawDegreeChip(markers, dx, dy, p.deg, color, DEGREE_FONT);
-      radii[p.key] = BODY_R;
+      const [dx, dy] = polar(200, 200, bodyR, displayDeg);
+      const [gx, gy] = polar(200, 200, glyphR, displayDeg);
+      drawGlyph(markers, gx, gy, p.g, glyphColor, glyphFont);
+      drawDegreeChip(markers, dx, dy, p.deg, color, degreeFont);
+      radii[p.key] = bodyR;
       // アスペクト線は、密集回避でずらした表示角度ではなく、本当の角度
       // (p.deg)に沿った、全天体共通の固定半径(ASPECT_ANCHOR_R)の点に
       // つなぐ(2026-09-19の決定を継続) -- NPT-Chartsの実機録画で確認した
@@ -6129,7 +6208,7 @@
       // 天体にも同じ仕組みで目盛り線を引いていることを実機録画で確認した
       // 上での変更) -- リング上の本当の角度から、実際に描画された(角度が
       // ずれた)位置まで結ぶ。
-      if (guides) drawGuideLine(markers, p.deg, ringInner, dx, dy);
+      if (guides) drawGuideLine(markers, p.deg, ringInner, dx, dy, guideStop);
     });
     return { radii, aspectAnchors };
   }
@@ -6434,6 +6513,7 @@
     mountPlaceTools('tz');
     applyTheme(loadSetting('theme', null));
     applyTextScale(loadSetting('textScale', 0));
+    syncWheelSizeUI();
     ['wheel-degree-switch', 'aspect-switch', 'conj-switch'].forEach((id) => {
       const saved = loadSetting('switch:' + id, null);
       if (saved === null) return;  // 未保存(初回)なら、HTML/画面幅ベースの初期値をそのまま使う
