@@ -631,7 +631,7 @@
      --tsは「文字の大きさ」の選択(1 / 1.25 / 1.5 / 1.8)で書き換わる。 */
   :root { --ts: 1; }
   .legend-grid, .aspect-table, .sabian-list { zoom: var(--ts); }
-  .side-panel .panel-head, .side-panel .panel-body { zoom: var(--ts); }
+  .side-panel .panel-head, .side-panel .panel-body, .side-panel .ref-fixed { zoom: var(--ts); }
   .ts-seg { display: flex; gap: 6px; }
   .ts-seg button {
     flex: 1; padding: 8px 4px; border-radius: var(--radius-sm); cursor: pointer;
@@ -754,6 +754,14 @@
   }
   .panel-head h2 { font-size: 1.05rem; }
   .panel-body { padding: 14px 18px 24px; overflow-y: auto; flex: 1; }
+  /* 起点の画面の、スクロールしない部分(検索欄とタブ) */
+  .ref-fixed { flex: 0 0 auto; padding: 12px 18px 10px; border-bottom: 1px solid var(--line); }
+  .ref-fixed .search-box, .ref-fixed .tab-row { margin-bottom: 0; }
+  .ref-fixed .search-box { margin-bottom: 10px; }
+  /* 文字を大きくしても、検索欄がはみ出さず、タブが2段にならないようにする */
+  .ref-fixed .search-box input { min-width: 0; }
+  .ref-fixed .tab-row { flex-wrap: nowrap; }
+  .ref-fixed .tab-btn { padding-left: 9px; padding-right: 9px; white-space: nowrap; }
 
   .search-box {
     display: flex; align-items: center; gap: 8px;
@@ -1810,20 +1818,21 @@
         <h2>起点を選ぶ</h2>
         <button class="icon-btn" onclick="closeAllPanels()">✕</button>
       </div>
-      <div class="panel-body">
+      <!-- 検索欄とタブは、一覧をスクロールしても残す(2026-11-26、「スクロールしてもそこにある方がよい」より) -->
+      <div class="ref-fixed">
         <div class="search-box">
           <span style="color:var(--ink-faint);">⌕</span>
-          <input type="text" id="ref-search" placeholder="恒星名・星座名で検索" oninput="filterRefList()">
+          <input type="text" id="ref-search" placeholder="恒星名・星座名で検索" oninput="scrollRefListTop(); filterRefList()">
         </div>
-        <div class="ref-item selected" data-key="tropical" onclick="pickRef(this,'tropical','トロピカル')" style="margin-bottom:10px; padding-left:6px; padding-right:6px; border-radius: var(--radius-sm); background: var(--accent-soft);">
-          <div class="ref-item-main"><span class="ref-item-name">トロピカル(恒星起点なし)</span><span class="ref-item-cat">初期設定 ・ 通常のヘリオセントリック黄経</span></div>
-          <div class="ref-item-check">✓</div>
-        </div>
-        <div class="section-label" style="margin:0 0 10px;">恒星・銀河を起点にする</div>
-
         <div class="tab-row" id="ref-tab-row">
           <button class="tab-btn active" data-reftab="gcs" onclick="setRefTab('gcs')">GCS(主要)</button>
           <button class="tab-btn" data-reftab="stars" onclick="setRefTab('stars')">恒星一覧</button>
+        </div>
+      </div>
+      <div class="panel-body" id="ref-body">
+        <div class="ref-item selected" data-key="tropical" onclick="pickRef(this,'tropical','トロピカル')" style="margin-bottom:10px; padding-left:6px; padding-right:6px; border-radius: var(--radius-sm); background: var(--accent-soft);">
+          <div class="ref-item-main"><span class="ref-item-name">トロピカル(恒星起点なし)</span><span class="ref-item-cat">初期設定 ・ 通常のヘリオセントリック黄経</span></div>
+          <div class="ref-item-check">✓</div>
         </div>
         <div id="ref-gcs-list">
 
@@ -3955,8 +3964,13 @@
     renderRefStarList();
   }
   let refTab = 'gcs';
+  function scrollRefListTop() {
+    const body = document.getElementById('ref-body');
+    if (body) body.scrollTop = 0;
+  }
   function setRefTab(name) {
     refTab = name;
+    scrollRefListTop();
     document.querySelectorAll('#ref-tab-row .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.reftab === name));
     document.getElementById('ref-gcs-list').style.display = name === 'gcs' ? '' : 'none';
     document.getElementById('ref-star-list').style.display = name === 'stars' ? '' : 'none';
